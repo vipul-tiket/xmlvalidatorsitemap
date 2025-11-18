@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Sitemap Validator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .form-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        input[type="text"],
+        input[type="file"],
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 200px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .output-section {
+            margin-top: 30px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .output-header h2 {
+            color: #333;
+        }
+
+        .btn-clear {
+            background: #ffc107;
+            color: #333;
+            padding: 8px 16px;
+        }
+
+        .btn-clear:hover {
+            background: #e0a800;
+        }
+
+        #output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .summary {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .summary.active {
+            display: block;
+        }
+
+        .summary-item {
+            display: inline-block;
+            margin-right: 30px;
+            font-size: 1.1em;
+        }
+
+        .summary-item strong {
+            color: #667eea;
+        }
+
+        .success {
+            color: #28a745;
+        }
+
+        .error {
+            color: #dc3545;
+        }
+
+        .warning {
+            color: #ffc107;
+        }
+
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            color: #0c5460;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📋 XML Sitemap Validator</h1>
+            <p>Validate XML sitemap structure and URL patterns</p>
+        </div>
+
+        <div class="content">
+            <div class="info-box">
+                <p><strong>Instructions:</strong> Upload an XML file or paste XML content. Enter the parent folder path that should be combined with URLs in the &lt;loc&gt; tags.</p>
+                <p style="margin-top: 10px;"><strong>Validation Rules:</strong></p>
+                <ul style="margin-top: 5px; margin-left: 20px; color: #0c5460;">
+                    <li>&lt;loc&gt; URLs should follow: <code>https://www.tiket.com/{parent_folder_path}/{path_from_xml}</code></li>
+                    <li>Each &lt;url&gt; must have &lt;xhtml:link&gt; elements with <code>rel="alternate"</code> and <code>hreflang</code> attributes</li>
+                    <li>Hreflang values must match the locale in the href URL (e.g., hreflang="id-id" → href with "id-id" in path)</li>
+                    <li>Must include an &lt;xhtml:link&gt; with <code>hreflang="x-default"</code></li>
+                    <li>All href URLs must start with <code>https://www.tiket.com</code></li>
+                </ul>
+            </div>
+
+            <div class="form-section">
+                <h2 style="margin-bottom: 20px; color: #333;">XML Input</h2>
+                
+                <div class="form-group">
+                    <label>Parent Folder Path *</label>
+                    <input type="text" id="parent-path" placeholder="en-sg/game/top-spender" required>
+                    <small style="display: block; margin-top: 5px; color: #666;">
+                        The parent folder path that will be combined with URLs (e.g., "en-sg/game/top-spender")
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload XML File</label>
+                    <input type="file" id="xml-file" accept=".xml" onchange="handleFileUpload(event)">
+                </div>
+
+                <div class="form-group">
+                    <label>Or Paste XML Content</label>
+                    <textarea id="xml-content" placeholder="Paste your XML sitemap content here..."></textarea>
+                </div>
+
+                <div class="actions">
+                    <button type="button" class="btn btn-primary" onclick="validateXML()" id="validate-btn">
+                        ✅ Validate XML
+                    </button>
+                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
+                        Clear
+                    </button>
+                </div>
+            </div>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p style="margin-top: 15px; color: #667eea; font-weight: 600;">Validating XML... Please wait.</p>
+            </div>
+
+            <div class="summary" id="summary">
+                <h3 style="margin-bottom: 15px;">Validation Summary</h3>
+                <div class="summary-item">
+                    <strong>✓ Valid:</strong> <span id="valid-count" class="success">0</span>
+                </div>
+                <div class="summary-item">
+                    <strong>✗ Invalid:</strong> <span id="invalid-count" class="error">0</span>
+                </div>
+                <div class="summary-item">
+                    <strong>⚠ Warnings:</strong> <span id="warning-count" class="warning">0</span>
+                </div>
+                <div class="summary-item">
+                    <strong>Total URLs:</strong> <span id="total-count">0</span>
+                </div>
+            </div>
+
+            <div class="output-section">
+                <div class="output-header">
+                    <h2>Validation Results</h2>
+                    <button type="button" class="btn btn-clear" onclick="clearOutput()">Clear Output</button>
+                </div>
+                <div id="output"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="xml-validator.js"></script>
+    <script>
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('xml-content').value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        function clearForm() {
+            document.getElementById('parent-path').value = '';
+            document.getElementById('xml-file').value = '';
+            document.getElementById('xml-content').value = '';
+            clearOutput();
+        }
+
+        function clearOutput() {
+            document.getElementById('output').textContent = '';
+            document.getElementById('summary').classList.remove('active');
+        }
+
+        async function validateXML() {
+            const parentPath = document.getElementById('parent-path').value.trim();
+            const xmlContent = document.getElementById('xml-content').value.trim();
+
+            if (!parentPath) {
+                alert('Please enter the parent folder path');
+                return;
+            }
+
+            if (!xmlContent) {
+                alert('Please upload an XML file or paste XML content');
+                return;
+            }
+
+            // Show loading
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('validate-btn').disabled = true;
+            clearOutput();
+
+            try {
+                // Use the XML validator library
+                const validator = new XMLSitemapValidator();
+                const result = validator.validate(xmlContent, parentPath);
+
+                // Display results
+                displayResults(result);
+
+            } catch (error) {
+                const outputDiv = document.getElementById('output');
+                outputDiv.textContent = `Error: ${error.message}`;
+                outputDiv.style.color = '#ff6b6b';
+            } finally {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('validate-btn').disabled = false;
+            }
+        }
+
+        function displayResults(result) {
+            const outputDiv = document.getElementById('output');
+            let output = [];
+
+            output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+            output.push(`📋 XML Sitemap Validation Results`);
+            output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+
+            if (result.isValid) {
+                output.push(`✅ XML Structure: VALID\n`);
+            } else {
+                output.push(`❌ XML Structure: INVALID\n`);
+            }
+
+            if (result.errors && result.errors.length > 0) {
+                output.push(`\n❌ ERRORS (${result.errors.length}):`);
+                result.errors.forEach((error, index) => {
+                    output.push(`\n${index + 1}. ${error.type}: ${error.message}`);
+                    if (error.url) {
+                        output.push(`   URL: ${error.url}`);
+                    }
+                    if (error.expected) {
+                        output.push(`   Expected: ${error.expected}`);
+                    }
+                    if (error.actual) {
+                        output.push(`   Actual: ${error.actual}`);
+                    }
+                });
+            }
+
+            if (result.warnings && result.warnings.length > 0) {
+                output.push(`\n\n⚠️  WARNINGS (${result.warnings.length}):`);
+                result.warnings.forEach((warning, index) => {
+                    output.push(`\n${index + 1}. ${warning.message}`);
+                    if (warning.url) {
+                        output.push(`   URL: ${warning.url}`);
+                    }
+                });
+            }
+
+            if (result.urlResults && result.urlResults.length > 0) {
+                output.push(`\n\n📊 URL VALIDATION RESULTS:`);
+                output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+                
+                result.urlResults.forEach((urlResult, index) => {
+                    const status = urlResult.isValid ? '✅' : '❌';
+                    output.push(`\n${index + 1}. ${status} ${urlResult.url}`);
+                    
+                    // Show hreflang validation results
+                    if (urlResult.hreflangResults && urlResult.hreflangResults.length > 0) {
+                        output.push(`   Hreflang Links: ${urlResult.hreflangResults.length}`);
+                        urlResult.hreflangResults.forEach((hreflangResult, hIndex) => {
+                            const hStatus = hreflangResult.isValid ? '✓' : '✗';
+                            output.push(`     ${hStatus} hreflang="${hreflangResult.hreflang}" -> ${hreflangResult.href}`);
+                            if (!hreflangResult.isValid && hreflangResult.errors) {
+                                hreflangResult.errors.forEach(err => {
+                                    output.push(`       - ${err}`);
+                                });
+                            }
+                        });
+                    }
+                    
+                    if (!urlResult.isValid && urlResult.errors) {
+                        output.push(`   Errors:`);
+                        urlResult.errors.forEach(err => {
+                            output.push(`     - ${err}`);
+                        });
+                    }
+                    if (urlResult.warnings && urlResult.warnings.length > 0) {
+                        output.push(`   Warnings:`);
+                        urlResult.warnings.forEach(warn => {
+                            output.push(`     - ${warn}`);
+                        });
+                    }
+                });
+            }
+
+            output.push(`\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+            output.push(`📊 SUMMARY:`);
+            output.push(`   Total URLs: ${result.totalUrls || 0}`);
+            output.push(`   Valid URLs: ${result.validUrls || 0}`);
+            output.push(`   Invalid URLs: ${result.invalidUrls || 0}`);
+            output.push(`   Warnings: ${result.warnings?.length || 0}`);
+            output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
+
+            outputDiv.textContent = output.join('\n');
+            outputDiv.scrollTop = outputDiv.scrollHeight;
+
+            // Update summary
+            document.getElementById('valid-count').textContent = result.validUrls || 0;
+            document.getElementById('invalid-count').textContent = result.invalidUrls || 0;
+            document.getElementById('warning-count').textContent = result.warnings?.length || 0;
+            document.getElementById('total-count').textContent = result.totalUrls || 0;
+            document.getElementById('summary').classList.add('active');
+        }
+    </script>
+</body>
+</html>
