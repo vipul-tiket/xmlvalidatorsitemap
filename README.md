@@ -1,144 +1,152 @@
-# XML Sitemap Validator
+# TravelWorld - Travel Website with On-Device Translation
 
-A web application to validate XML sitemap structure and URL patterns. Validates that URLs in `<loc>` tags follow the pattern: `https://www.tiket.com/{parent_folder_path}/{path_from_xml}`
+A modern, beautiful travel website showcasing destinations with Chrome's on-device AI translation capabilities.
 
 ## Features
 
-- ✅ Upload XML files or paste XML content
-- ✅ Validate XML structure (urlset, url, loc elements)
-- ✅ Validate URL patterns against parent folder path
-- ✅ Check URL format and structure
-- ✅ Detailed error and warning reporting
-- ✅ Beautiful web UI with real-time validation
+### Hero Carousel
+- **4 Full-Screen Slides** - Stunning travel destination images (mountains, beaches, cultural sites, lakes)
+- **Auto-Play** - Automatically advances every 5 seconds
+- **Navigation Controls** - Previous/Next arrow buttons
+- **Indicator Dots** - Clickable dots to jump to specific slides
+- **Smooth Transitions** - Fade and scale animations between slides
+- **Content Overlay** - Each slide displays title, description, and CTA button
+
+### Content Sections
+- **Features Section** - 6 feature cards explaining why to choose TravelWorld (Global Destinations, Best Price Guarantee, Secure Booking, 24/7 Support, Easy Booking, Exclusive Rewards)
+- **Destinations Section** - 6 popular destination cards with hover effects and pricing (Paris, Tokyo, Bali, Dubai, Rome, New York)
+- **Testimonials Section** - 3 customer review cards with star ratings and author info
+- **CTA Section** - Full-width call-to-action banner
+
+### Footer
+- Brand section with description and social media links
+- Company navigation links (About Us, Careers, Press, Blog)
+- Support links (Help Center, Safety, Cancellation, COVID-19)
+- Legal links (Privacy Policy, Terms of Service, Cookie Policy, Licenses)
+- Copyright and accessibility information
+
+### On-Device Translation (Chrome Translator API)
+- **Language Selector** - Dropdown with 10 languages in the navigation bar
+- **Supported Languages**: English, Spanish, French, German, Japanese, Chinese, Portuguese, Italian, Korean, Russian
+- **Chrome AI Translation** - Uses Chrome's native on-device Translator API (Chrome 138+)
+- **Download Progress** - Shows language pack download progress
+- **Status Indicator** - Displays translation status (Ready, Translating, Language name)
+- **Loading Overlay** - Visual feedback during translation
+- **Graceful Fallback** - Pre-defined translations for browsers without the API
+
+## How On-Device Translation Works
+
+The page uses Chrome's [Translator API](https://developer.chrome.com/docs/ai/translate-on-device) for client-side translation:
+
+### 1. Feature Detection
+```javascript
+if ('Translator' in self) {
+  // Chrome Translator API is available
+}
+```
+
+### 2. Creating a Translator
+```javascript
+const translator = await Translator.create({
+  sourceLanguage: 'en',
+  targetLanguage: 'es',
+  monitor(m) {
+    m.addEventListener('downloadprogress', (e) => {
+      console.log(`Downloaded ${e.loaded * 100}%`);
+    });
+  }
+});
+```
+
+### 3. Translating Text
+```javascript
+const translatedText = await translator.translate('Hello, world!');
+// Returns: "¡Hola, mundo!"
+```
+
+### Translation Flow
+1. All translatable elements have `data-translate` attributes
+2. Original English text is stored on page load
+3. When user selects a language:
+   - If Chrome API is available: Creates translator instance, downloads language pack if needed, translates all elements
+   - If API unavailable: Uses fallback pre-defined translations
+4. Switching back to English restores original text
+
+### Hardware Requirements for Chrome Translator API
+- **Desktop Only** - API works on Chrome desktop (not mobile)
+- **OS**: Windows 10+, macOS 13+, Linux, or ChromeOS
+- **Storage**: At least 22 GB free space
+- **GPU**: >4 GB VRAM (or CPU with 16 GB RAM and 4+ cores)
+- **Network**: Unlimited/unmetered connection for language pack downloads
 
 ## Usage
 
-### Web UI
+### Running Locally
 
-1. Start the development server:
+1. Install dependencies:
 ```bash
 npm install
+```
+
+2. Start the development server:
+```bash
 npm run dev
 ```
 
-2. Open `http://localhost:3000` in your browser
+3. Open `http://localhost:3000` in your browser
 
-3. Enter:
-   - **Parent Folder Path**: The parent folder path (e.g., `en-sg/game/top-spender`)
-   - **XML Content**: Upload an XML file or paste XML content
+### Testing Translation
 
-4. Click "Validate XML" to see results
-
-### JavaScript Library
-
-```javascript
-// Import the validator
-const validator = new XMLSitemapValidator();
-
-// Validate XML
-const xmlContent = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.tiket.com/en-sg/game/top-spender</loc>
-  </url>
-</urlset>`;
-
-const parentPath = 'en-sg/game/top-spender';
-const result = validator.validate(xmlContent, parentPath);
-
-console.log(result);
-// {
-//   isValid: true,
-//   errors: [],
-//   warnings: [],
-//   urlResults: [...],
-//   totalUrls: 1,
-//   validUrls: 1,
-//   invalidUrls: 0
-// }
-```
-
-## Validation Rules
-
-### XML Structure
-- Must have `<urlset>` root element
-- Must have `xmlns` attribute (recommended)
-- Each `<url>` must have a `<loc>` element
-- Optional: `<lastmod>`, `<changefreq>`, `<priority>`
-
-### URL Validation
-- URLs must start with `https://www.tiket.com`
-- URLs must contain the parent folder path
-- URLs must be valid URL format
-- Warnings for trailing slashes, multiple slashes, etc.
-
-## Example XML Structure
-
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.tiket.com/en-sg/game/top-spender</loc>
-    <lastmod>2024-01-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.tiket.com/en-sg/game/top-spender/leaderboard</loc>
-    <lastmod>2024-01-01</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
-  </url>
-</urlset>
-```
+1. Open the page in Chrome 138 or later
+2. Use the language dropdown in the top-right navigation
+3. Select a language to translate the page content
+4. The status indicator shows translation progress
+5. Select "English" to restore original content
 
 ## Project Structure
 
 ```
 .
 ├── public/
-│   ├── index.html          # Web UI
-│   └── xml-validator.js    # Validation library
+│   ├── index.html          # Main webpage with carousel, content, and translation
+│   └── xml-validator.js    # (Legacy) XML validation library
 ├── package.json
 └── README.md
 ```
 
-## API Reference
+## Technical Details
 
-### XMLSitemapValidator Class
+### Carousel Implementation
+- Pure CSS transitions with JavaScript control
+- `opacity` and `transform: scale()` for smooth effects
+- Auto-play with `setInterval`, reset on manual navigation
+- Responsive design adapts to all screen sizes
 
-#### Methods
+### Translation Implementation
+- `Map` object stores original English text
+- Async/await for API calls
+- `Promise.all` for parallel translation of multiple elements
+- Try/catch with fallback handling
 
-##### `validate(xmlContent, parentPath)`
-Main validation method.
+### Responsive Design
+- Mobile-first approach
+- CSS Grid for layouts
+- Breakpoints at 768px and 1024px
+- Flexbox for navigation and footer
 
-**Parameters:**
-- `xmlContent` (string): XML content as string
-- `parentPath` (string): Parent folder path to combine with URLs
+## Browser Support
 
-**Returns:**
-```javascript
-{
-  isValid: boolean,           // Overall validation status
-  errors: Array,              // Array of error objects
-  warnings: Array,            // Array of warning objects
-  urlResults: Array,         // Detailed results for each URL
-  totalUrls: number,          // Total number of URLs found
-  validUrls: number,          // Number of valid URLs
-  invalidUrls: number         // Number of invalid URLs
-}
-```
+| Feature | Chrome | Edge | Firefox | Safari |
+|---------|--------|------|---------|--------|
+| Carousel | ✅ | ✅ | ✅ | ✅ |
+| Fallback Translation | ✅ | ✅ | ✅ | ✅ |
+| Chrome Translator API | ✅ 138+ | ❌ | ❌ | ❌ |
 
-**Error Object:**
-```javascript
-{
-  type: string,              // Error type
-  message: string,           // Error message
-  url: string,              // URL (if applicable)
-  expected: string,         // Expected value (if applicable)
-  actual: string            // Actual value (if applicable)
-}
-```
+## Resources
+
+- [Chrome Translator API Documentation](https://developer.chrome.com/docs/ai/translate-on-device)
+- [Built-in AI Overview](https://developer.chrome.com/docs/ai/built-in)
+- [Language Detector API](https://developer.chrome.com/docs/ai/language-detection)
 
 ## Deployment
 
@@ -158,7 +166,7 @@ The app will be available at your Vercel URL.
 
 ## Notes
 
-- The validator uses browser's native `DOMParser` for XML parsing
-- All validation happens client-side
-- No server-side processing required
-- Supports standard sitemap XML format
+- Translation happens entirely on-device (client-side)
+- No server-side processing or external APIs required
+- Language packs are downloaded once and cached by Chrome
+- The page works without translation in browsers that don't support the API

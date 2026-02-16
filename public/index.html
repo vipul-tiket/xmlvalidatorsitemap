@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XML Sitemap Validator</title>
+    <title>TravelWorld - Discover Amazing Destinations</title>
     <style>
         * {
             margin: 0;
@@ -11,476 +11,1351 @@
             box-sizing: border-box;
         }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #f97316;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --success: #10b981;
         }
 
-        .container {
-            max-width: 1200px;
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--light);
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 15px 0;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
             margin: 0 auto;
+            padding: 0 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.8em;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--dark);
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Language Selector */
+        .language-selector {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .language-selector select {
+            padding: 8px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 8px;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            color: var(--dark);
+            font-weight: 500;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .translation-status {
+            font-size: 0.85em;
+            color: var(--gray);
+            padding: 5px 10px;
+            border-radius: 5px;
+            background: #e0e7ff;
+        }
+
+        .translation-status.success {
+            background: #d1fae5;
+            color: var(--success);
+        }
+
+        .translation-status.error {
+            background: #fee2e2;
+            color: #ef4444;
+        }
+
+        /* Hero Carousel */
+        .carousel-container {
+            margin-top: 70px;
+            position: relative;
+            height: 85vh;
+            min-height: 600px;
             overflow: hidden;
         }
 
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
+        .carousel {
+            position: relative;
+            height: 100%;
         }
 
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            opacity: 0.9;
-            font-size: 1.1em;
-        }
-
-        .content {
-            padding: 30px;
-        }
-
-        .form-section {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 8px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
-
-        input[type="text"],
-        input[type="file"],
-        textarea {
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            padding: 12px;
-            border: 2px solid #e0e0e0;
-            border-radius: 6px;
-            font-size: 14px;
-            transition: border-color 0.3s;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out, transform 1s ease-in-out;
+            transform: scale(1.1);
         }
 
-        input[type="text"]:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
+        .carousel-slide.active {
+            opacity: 1;
+            transform: scale(1);
         }
 
-        textarea {
-            min-height: 200px;
-            font-family: 'Courier New', monospace;
-            resize: vertical;
+        .carousel-slide::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.3), rgba(0,0,0,0.7));
+            z-index: 1;
         }
 
-        .btn {
-            padding: 12px 24px;
+        .carousel-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .carousel-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+            z-index: 2;
+            max-width: 900px;
+            padding: 0 30px;
+        }
+
+        .carousel-content h1 {
+            font-size: 4em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 2px 4px 20px rgba(0,0,0,0.5);
+            line-height: 1.2;
+        }
+
+        .carousel-content p {
+            font-size: 1.4em;
+            margin-bottom: 30px;
+            opacity: 0.95;
+            text-shadow: 1px 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .carousel-btn {
+            display: inline-block;
+            padding: 18px 45px;
+            background: var(--secondary);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1em;
+            transition: all 0.3s;
+            box-shadow: 0 10px 30px rgba(249, 115, 22, 0.4);
+        }
+
+        .carousel-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(249, 115, 22, 0.5);
+        }
+
+        /* Carousel Navigation */
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
             border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 600;
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 10;
+        }
+
+        .carousel-nav:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .carousel-nav.prev { left: 30px; }
+        .carousel-nav.next { right: 30px; }
+
+        /* Carousel Indicators */
+        .carousel-indicators {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 10;
+        }
+
+        .carousel-indicator {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+            border: 2px solid white;
             cursor: pointer;
             transition: all 0.3s;
         }
 
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .carousel-indicator.active {
+            background: white;
+            transform: scale(1.2);
         }
 
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        /* Features Section */
+        .features {
+            padding: 100px 30px;
+            background: white;
         }
 
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
-
-        .actions {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .output-section {
-            margin-top: 30px;
-        }
-
-        .output-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .output-header h2 {
-            color: #333;
-        }
-
-        .btn-clear {
-            background: #ffc107;
-            color: #333;
-            padding: 8px 16px;
-        }
-
-        .btn-clear:hover {
-            background: #e0a800;
-        }
-
-        #output {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 20px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.6;
-            max-height: 600px;
-            overflow-y: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .loading.active {
-            display: block;
-        }
-
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+        .section-container {
+            max-width: 1400px;
             margin: 0 auto;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .section-header {
+            text-align: center;
+            margin-bottom: 70px;
         }
 
-        .summary {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-            display: none;
+        .section-header h2 {
+            font-size: 3em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--dark), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
-        .summary.active {
-            display: block;
+        .section-header p {
+            font-size: 1.3em;
+            color: var(--gray);
+            max-width: 700px;
+            margin: 0 auto;
         }
 
-        .summary-item {
-            display: inline-block;
-            margin-right: 30px;
-            font-size: 1.1em;
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 40px;
         }
 
-        .summary-item strong {
-            color: #667eea;
+        .feature-card {
+            background: var(--light);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.4s;
+            border: 1px solid #e2e8f0;
         }
 
-        .success {
-            color: #28a745;
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.1);
         }
 
-        .error {
-            color: #dc3545;
+        .feature-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 25px;
+            font-size: 2.5em;
         }
 
-        .warning {
-            color: #ffc107;
+        .feature-card h3 {
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: var(--dark);
         }
 
-        .info-box {
-            background: #d1ecf1;
-            border-left: 4px solid #0c5460;
-            padding: 15px;
-            border-radius: 6px;
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.8;
+        }
+
+        /* Destinations Section */
+        .destinations {
+            padding: 100px 30px;
+            background: linear-gradient(180deg, var(--light) 0%, #e0e7ff 100%);
+        }
+
+        .destinations-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .destination-card {
+            position: relative;
+            border-radius: 20px;
+            overflow: hidden;
+            height: 400px;
+            cursor: pointer;
+            transition: all 0.4s;
+        }
+
+        .destination-card:hover {
+            transform: scale(1.03);
+        }
+
+        .destination-card:hover .destination-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.3) 100%);
+        }
+
+        .destination-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s;
+        }
+
+        .destination-card:hover img {
+            transform: scale(1.1);
+        }
+
+        .destination-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 40px 25px 25px;
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);
+            color: white;
+            transition: all 0.4s;
+        }
+
+        .destination-overlay h3 {
+            font-size: 1.6em;
+            margin-bottom: 8px;
+        }
+
+        .destination-overlay p {
+            opacity: 0.9;
+            font-size: 0.95em;
+        }
+
+        .destination-price {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--secondary);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 700;
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 100px 30px;
+            background: white;
+        }
+
+        .testimonials-slider {
+            display: flex;
+            gap: 30px;
+            overflow: hidden;
+        }
+
+        .testimonial-card {
+            flex: 0 0 calc(33.333% - 20px);
+            background: var(--light);
+            border-radius: 20px;
+            padding: 40px;
+            border: 1px solid #e2e8f0;
+        }
+
+        .testimonial-stars {
+            color: #fbbf24;
+            font-size: 1.3em;
             margin-bottom: 20px;
         }
 
-        .info-box p {
-            color: #0c5460;
-            margin: 0;
+        .testimonial-text {
+            font-size: 1.1em;
+            color: var(--dark);
+            margin-bottom: 25px;
+            line-height: 1.8;
+            font-style: italic;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .testimonial-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 1.3em;
+        }
+
+        .testimonial-info h4 {
+            font-size: 1.1em;
+            color: var(--dark);
+        }
+
+        .testimonial-info p {
+            color: var(--gray);
+            font-size: 0.9em;
+        }
+
+        /* CTA Section */
+        .cta {
+            padding: 120px 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            text-align: center;
+            color: white;
+        }
+
+        .cta h2 {
+            font-size: 3.5em;
+            font-weight: 800;
+            margin-bottom: 25px;
+        }
+
+        .cta p {
+            font-size: 1.4em;
+            opacity: 0.9;
+            margin-bottom: 40px;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            padding: 20px 50px;
+            background: white;
+            color: var(--primary);
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2em;
+            transition: all 0.3s;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 80px 30px 30px;
+        }
+
+        .footer-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+        }
+
+        .footer-brand h3 {
+            font-size: 2em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-brand p {
+            color: #94a3b8;
+            line-height: 1.8;
+            margin-bottom: 25px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: var(--primary);
+            transform: translateY(-3px);
+        }
+
+        .footer-column h4 {
+            font-size: 1.2em;
+            margin-bottom: 25px;
+            color: white;
+        }
+
+        .footer-column ul {
+            list-style: none;
+        }
+
+        .footer-column li {
+            margin-bottom: 12px;
+        }
+
+        .footer-column a {
+            color: #94a3b8;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-column a:hover {
+            color: var(--primary);
+        }
+
+        .footer-bottom {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #94a3b8;
+        }
+
+        .footer-legal {
+            display: flex;
+            gap: 30px;
+        }
+
+        .footer-legal a {
+            color: #94a3b8;
+            text-decoration: none;
+        }
+
+        .footer-legal a:hover {
+            color: white;
+        }
+
+        /* Translation Loading Overlay */
+        .translation-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .translation-overlay.active {
+            display: flex;
+        }
+
+        .translation-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid #e2e8f0;
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .translation-overlay p {
+            margin-top: 20px;
+            font-size: 1.2em;
+            color: var(--dark);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .destinations-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .footer-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 40px;
+            }
+            .testimonial-card {
+                flex: 0 0 calc(50% - 15px);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .carousel-content h1 { font-size: 2.5em; }
+            .carousel-content p { font-size: 1.1em; }
+            .section-header h2 { font-size: 2em; }
+            .destinations-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; gap: 20px; text-align: center; }
+            .testimonial-card { flex: 0 0 100%; }
+            .cta h2 { font-size: 2.5em; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>📋 XML Sitemap Validator</h1>
-            <p>Validate XML sitemap structure and URL patterns</p>
-        </div>
-
-        <div class="content">
-            <div class="info-box">
-                <p><strong>Instructions:</strong> Upload an XML file or paste XML content. Enter the parent folder path that should be combined with URLs in the &lt;loc&gt; tags.</p>
-                <p style="margin-top: 10px;"><strong>Validation Rules:</strong></p>
-                <ul style="margin-top: 5px; margin-left: 20px; color: #0c5460;">
-                    <li>&lt;loc&gt; URLs should follow: <code>https://www.tiket.com/{parent_folder_path}/{path_from_xml}</code></li>
-                    <li>Each &lt;url&gt; must have &lt;xhtml:link&gt; elements with <code>rel="alternate"</code> and <code>hreflang</code> attributes</li>
-                    <li>Hreflang values must match the locale in the href URL (e.g., hreflang="id-id" → href with "id-id" in path)</li>
-                    <li>Must include an &lt;xhtml:link&gt; with <code>hreflang="x-default"</code></li>
-                    <li>All href URLs must start with <code>https://www.tiket.com</code></li>
-                </ul>
-            </div>
-
-            <div class="form-section">
-                <h2 style="margin-bottom: 20px; color: #333;">XML Input</h2>
-                
-                <div class="form-group">
-                    <label>Parent Folder Path *</label>
-                    <input type="text" id="parent-path" placeholder="en-sg/game/top-spender" required>
-                    <small style="display: block; margin-top: 5px; color: #666;">
-                        The parent folder path that will be combined with URLs (e.g., "en-sg/game/top-spender")
-                    </small>
-                </div>
-
-                <div class="form-group">
-                    <label>Upload XML File</label>
-                    <input type="file" id="xml-file" accept=".xml" onchange="handleFileUpload(event)">
-                </div>
-
-                <div class="form-group">
-                    <label>Or Paste XML Content</label>
-                    <textarea id="xml-content" placeholder="Paste your XML sitemap content here..."></textarea>
-                </div>
-
-                <div class="actions">
-                    <button type="button" class="btn btn-primary" onclick="validateXML()" id="validate-btn">
-                        ✅ Validate XML
-                    </button>
-                    <button type="button" class="btn btn-secondary" onclick="clearForm()">
-                        Clear
-                    </button>
-                </div>
-            </div>
-
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
-                <p style="margin-top: 15px; color: #667eea; font-weight: 600;">Validating XML... Please wait.</p>
-            </div>
-
-            <div class="summary" id="summary">
-                <h3 style="margin-bottom: 15px;">Validation Summary</h3>
-                <div class="summary-item">
-                    <strong>✓ Valid:</strong> <span id="valid-count" class="success">0</span>
-                </div>
-                <div class="summary-item">
-                    <strong>✗ Invalid:</strong> <span id="invalid-count" class="error">0</span>
-                </div>
-                <div class="summary-item">
-                    <strong>⚠ Warnings:</strong> <span id="warning-count" class="warning">0</span>
-                </div>
-                <div class="summary-item">
-                    <strong>Total URLs:</strong> <span id="total-count">0</span>
-                </div>
-            </div>
-
-            <div class="output-section">
-                <div class="output-header">
-                    <h2>Validation Results</h2>
-                    <button type="button" class="btn btn-clear" onclick="clearOutput()">Clear Output</button>
-                </div>
-                <div id="output"></div>
-            </div>
-        </div>
+    <!-- Translation Loading Overlay -->
+    <div class="translation-overlay" id="translationOverlay">
+        <div class="translation-spinner"></div>
+        <p data-translate="translating">Translating content...</p>
     </div>
 
-    <script src="xml-validator.js"></script>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">TravelWorld</div>
+            <ul class="nav-links">
+                <li><a href="#" data-translate="nav-home">Home</a></li>
+                <li><a href="#destinations" data-translate="nav-destinations">Destinations</a></li>
+                <li><a href="#features" data-translate="nav-features">Features</a></li>
+                <li><a href="#testimonials" data-translate="nav-testimonials">Testimonials</a></li>
+                <li><a href="#contact" data-translate="nav-contact">Contact</a></li>
+            </ul>
+            <div class="language-selector">
+                <select id="languageSelect" onchange="changeLanguage(this.value)">
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Français</option>
+                    <option value="de">Deutsch</option>
+                    <option value="ja">日本語</option>
+                    <option value="zh">中文</option>
+                    <option value="pt">Português</option>
+                    <option value="it">Italiano</option>
+                    <option value="ko">한국어</option>
+                    <option value="ru">Русский</option>
+                </select>
+                <span class="translation-status" id="translationStatus">Ready</span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Carousel -->
+    <section class="carousel-container">
+        <div class="carousel" id="carousel">
+            <div class="carousel-slide active">
+                <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80" alt="Mountains">
+                <div class="carousel-content">
+                    <h1 data-translate="slide1-title">Explore the World's Most Breathtaking Mountains</h1>
+                    <p data-translate="slide1-desc">Discover majestic peaks, pristine valleys, and unforgettable adventures in the most stunning mountain destinations on Earth.</p>
+                    <a href="#" class="carousel-btn" data-translate="explore-btn">Start Exploring</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1920&q=80" alt="Beach">
+                <div class="carousel-content">
+                    <h1 data-translate="slide2-title">Paradise Beaches Await Your Arrival</h1>
+                    <p data-translate="slide2-desc">Crystal-clear waters, white sandy shores, and tropical bliss. Your perfect beach getaway is just one click away.</p>
+                    <a href="#" class="carousel-btn" data-translate="book-btn">Book Now</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?w=1920&q=80" alt="Japan">
+                <div class="carousel-content">
+                    <h1 data-translate="slide3-title">Experience Rich Cultural Heritage</h1>
+                    <p data-translate="slide3-desc">Immerse yourself in ancient traditions, stunning temples, and vibrant festivals that will leave lasting memories.</p>
+                    <a href="#" class="carousel-btn" data-translate="discover-btn">Discover Culture</a>
+                </div>
+            </div>
+            <div class="carousel-slide">
+                <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80" alt="Lake">
+                <div class="carousel-content">
+                    <h1 data-translate="slide4-title">Serene Lakes and Natural Wonders</h1>
+                    <p data-translate="slide4-desc">Find tranquility in nature's most peaceful settings. Escape the ordinary and embrace the extraordinary.</p>
+                    <a href="#" class="carousel-btn" data-translate="plan-btn">Plan Your Trip</a>
+                </div>
+            </div>
+        </div>
+        <button class="carousel-nav prev" onclick="prevSlide()">&#10094;</button>
+        <button class="carousel-nav next" onclick="nextSlide()">&#10095;</button>
+        <div class="carousel-indicators" id="carouselIndicators"></div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 data-translate="features-title">Why Choose TravelWorld?</h2>
+                <p data-translate="features-desc">We provide exceptional travel experiences with unmatched service, competitive prices, and destinations that dreams are made of.</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🌍</div>
+                    <h3 data-translate="feature1-title">Global Destinations</h3>
+                    <p data-translate="feature1-desc">Access to over 500 destinations worldwide. From tropical paradises to arctic adventures, we've got you covered with the most diverse selection of travel experiences.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h3 data-translate="feature2-title">Best Price Guarantee</h3>
+                    <p data-translate="feature2-desc">We guarantee the best prices or your money back. Our extensive network of partners allows us to offer exclusive deals you won't find anywhere else.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <h3 data-translate="feature3-title">Secure Booking</h3>
+                    <p data-translate="feature3-desc">Your safety is our priority. Book with confidence knowing your transactions and personal information are protected with industry-leading security measures.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📞</div>
+                    <h3 data-translate="feature4-title">24/7 Support</h3>
+                    <p data-translate="feature4-desc">Our dedicated support team is available around the clock. Whether you need help planning or assistance during your trip, we're always here for you.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">✈️</div>
+                    <h3 data-translate="feature5-title">Easy Booking Process</h3>
+                    <p data-translate="feature5-desc">Book your dream vacation in just a few clicks. Our streamlined process makes planning effortless, so you can focus on the excitement of your upcoming adventure.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🎁</div>
+                    <h3 data-translate="feature6-title">Exclusive Rewards</h3>
+                    <p data-translate="feature6-desc">Earn points on every booking and unlock exclusive perks. From room upgrades to free experiences, loyalty has never been more rewarding.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Destinations Section -->
+    <section class="destinations" id="destinations">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 data-translate="dest-title">Popular Destinations</h2>
+                <p data-translate="dest-desc">Explore our most sought-after destinations, handpicked by travel experts and loved by adventurers worldwide.</p>
+            </div>
+            <div class="destinations-grid">
+                <div class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1499856871958-5b9627545d1a?w=800&q=80" alt="Paris">
+                    <span class="destination-price" data-translate="price-from">From $899</span>
+                    <div class="destination-overlay">
+                        <h3 data-translate="dest-paris">Paris, France</h3>
+                        <p data-translate="dest-paris-desc">The City of Light awaits with romance and culture</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&q=80" alt="Tokyo">
+                    <span class="destination-price" data-translate="price-tokyo">From $1,299</span>
+                    <div class="destination-overlay">
+                        <h3 data-translate="dest-tokyo">Tokyo, Japan</h3>
+                        <p data-translate="dest-tokyo-desc">Where ancient traditions meet modern innovation</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?w=800&q=80" alt="Bali">
+                    <span class="destination-price" data-translate="price-bali">From $749</span>
+                    <div class="destination-overlay">
+                        <h3 data-translate="dest-bali">Bali, Indonesia</h3>
+                        <p data-translate="dest-bali-desc">Tropical paradise with spiritual serenity</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=800&q=80" alt="Dubai">
+                    <span class="destination-price" data-translate="price-dubai">From $999</span>
+                    <div class="destination-overlay">
+                        <h3 data-translate="dest-dubai">Dubai, UAE</h3>
+                        <p data-translate="dest-dubai-desc">Luxury and adventure in the desert metropolis</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&q=80" alt="Rome">
+                    <span class="destination-price" data-translate="price-rome">From $849</span>
+                    <div class="destination-overlay">
+                        <h3 data-translate="dest-rome">Rome, Italy</h3>
+                        <p data-translate="dest-rome-desc">Walk through millennia of art and history</p>
+                    </div>
+                </div>
+                <div class="destination-card">
+                    <img src="https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?w=800&q=80" alt="New York">
+                    <span class="destination-price" data-translate="price-nyc">From $699</span>
+                    <div class="destination-overlay">
+                        <h3 data-translate="dest-nyc">New York, USA</h3>
+                        <p data-translate="dest-nyc-desc">The city that never sleeps beckons you</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-container">
+            <div class="section-header">
+                <h2 data-translate="testimonials-title">What Our Travelers Say</h2>
+                <p data-translate="testimonials-desc">Real experiences from real travelers who trusted us with their dream vacations.</p>
+            </div>
+            <div class="testimonials-slider">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text" data-translate="testimonial1">"Absolutely incredible experience! TravelWorld made our honeymoon unforgettable. Every detail was perfectly planned, and the customer service was outstanding. We'll definitely book again!"</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">SM</div>
+                        <div class="testimonial-info">
+                            <h4>Sarah Mitchell</h4>
+                            <p data-translate="testimonial1-location">New York, USA</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text" data-translate="testimonial2">"From the moment we landed to the day we left, everything was seamless. The local guides were knowledgeable and friendly. This was truly the trip of a lifetime for our family."</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">JC</div>
+                        <div class="testimonial-info">
+                            <h4>James Chen</h4>
+                            <p data-translate="testimonial2-location">Toronto, Canada</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">★★★★★</div>
+                    <p class="testimonial-text" data-translate="testimonial3">"Best travel agency I've ever used! The price was unbeatable, and they went above and beyond to ensure we had an amazing experience. Highly recommend to everyone!"</p>
+                    <div class="testimonial-author">
+                        <div class="testimonial-avatar">EG</div>
+                        <div class="testimonial-info">
+                            <h4>Emma Garcia</h4>
+                            <p data-translate="testimonial3-location">London, UK</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta" id="contact">
+        <div class="section-container">
+            <h2 data-translate="cta-title">Ready to Start Your Adventure?</h2>
+            <p data-translate="cta-desc">Join millions of happy travelers who discovered their perfect getaway with TravelWorld. Your dream destination is waiting.</p>
+            <a href="#" class="cta-btn" data-translate="cta-btn">Get Started Today</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <h3>TravelWorld</h3>
+                <p data-translate="footer-desc">Making travel dreams come true since 2010. We believe that everyone deserves to experience the wonders of the world. Let us take you on your next great adventure.</p>
+                <div class="social-links">
+                    <a href="#" class="social-link">f</a>
+                    <a href="#" class="social-link">t</a>
+                    <a href="#" class="social-link">in</a>
+                    <a href="#" class="social-link">ig</a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4 data-translate="footer-company">Company</h4>
+                <ul>
+                    <li><a href="#" data-translate="footer-about">About Us</a></li>
+                    <li><a href="#" data-translate="footer-careers">Careers</a></li>
+                    <li><a href="#" data-translate="footer-press">Press</a></li>
+                    <li><a href="#" data-translate="footer-blog">Blog</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4 data-translate="footer-support">Support</h4>
+                <ul>
+                    <li><a href="#" data-translate="footer-help">Help Center</a></li>
+                    <li><a href="#" data-translate="footer-safety">Safety</a></li>
+                    <li><a href="#" data-translate="footer-cancel">Cancellation</a></li>
+                    <li><a href="#" data-translate="footer-covid">COVID-19</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4 data-translate="footer-legal-title">Legal</h4>
+                <ul>
+                    <li><a href="#" data-translate="footer-privacy">Privacy Policy</a></li>
+                    <li><a href="#" data-translate="footer-terms">Terms of Service</a></li>
+                    <li><a href="#" data-translate="footer-cookies">Cookie Policy</a></li>
+                    <li><a href="#" data-translate="footer-licenses">Licenses</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p data-translate="footer-copyright">© 2026 TravelWorld. All rights reserved.</p>
+            <div class="footer-legal">
+                <a href="#" data-translate="footer-accessibility">Accessibility</a>
+                <a href="#" data-translate="footer-sitemap">Sitemap</a>
+            </div>
+        </div>
+    </footer>
+
     <script>
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    document.getElementById('xml-content').value = e.target.result;
-                };
-                reader.readAsText(file);
+        // =========================================
+        // Carousel Functionality
+        // =========================================
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.carousel-slide');
+        const totalSlides = slides.length;
+        let autoplayInterval;
+
+        // Create indicators
+        const indicatorsContainer = document.getElementById('carouselIndicators');
+        for (let i = 0; i < totalSlides; i++) {
+            const indicator = document.createElement('div');
+            indicator.className = `carousel-indicator ${i === 0 ? 'active' : ''}`;
+            indicator.onclick = () => goToSlide(i);
+            indicatorsContainer.appendChild(indicator);
+        }
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+            document.querySelectorAll('.carousel-indicator').forEach((ind, index) => {
+                ind.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateSlide();
+            resetAutoplay();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateSlide();
+            resetAutoplay();
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            updateSlide();
+            resetAutoplay();
+        }
+
+        function startAutoplay() {
+            autoplayInterval = setInterval(nextSlide, 5000);
+        }
+
+        function resetAutoplay() {
+            clearInterval(autoplayInterval);
+            startAutoplay();
+        }
+
+        startAutoplay();
+
+        // =========================================
+        // Chrome On-Device Translation API
+        // =========================================
+        
+        // Store original English text for all translatable elements
+        const originalTexts = new Map();
+        let currentTranslator = null;
+        let currentLanguage = 'en';
+
+        // Initialize - store all original texts
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                originalTexts.set(el.getAttribute('data-translate'), el.textContent);
+            });
+            
+            // Check if Translator API is available
+            checkTranslatorAPI();
+        });
+
+        function checkTranslatorAPI() {
+            const statusEl = document.getElementById('translationStatus');
+            
+            if ('Translator' in self) {
+                statusEl.textContent = 'AI Translation Ready';
+                statusEl.classList.add('success');
+                console.log('Chrome Translator API is available');
+            } else {
+                statusEl.textContent = 'Fallback Mode';
+                statusEl.classList.add('error');
+                console.log('Chrome Translator API not available - using fallback translations');
             }
         }
 
-        function clearForm() {
-            document.getElementById('parent-path').value = '';
-            document.getElementById('xml-file').value = '';
-            document.getElementById('xml-content').value = '';
-            clearOutput();
-        }
-
-        function clearOutput() {
-            document.getElementById('output').textContent = '';
-            document.getElementById('summary').classList.remove('active');
-        }
-
-        async function validateXML() {
-            const parentPath = document.getElementById('parent-path').value.trim();
-            const xmlContent = document.getElementById('xml-content').value.trim();
-
-            if (!parentPath) {
-                alert('Please enter the parent folder path');
+        async function changeLanguage(targetLang) {
+            if (targetLang === currentLanguage) return;
+            
+            const statusEl = document.getElementById('translationStatus');
+            const overlay = document.getElementById('translationOverlay');
+            
+            // If switching back to English, restore original texts
+            if (targetLang === 'en') {
+                document.querySelectorAll('[data-translate]').forEach(el => {
+                    const key = el.getAttribute('data-translate');
+                    if (originalTexts.has(key)) {
+                        el.textContent = originalTexts.get(key);
+                    }
+                });
+                currentLanguage = 'en';
+                statusEl.textContent = 'English';
+                statusEl.className = 'translation-status success';
                 return;
             }
 
-            if (!xmlContent) {
-                alert('Please upload an XML file or paste XML content');
-                return;
-            }
-
-            // Show loading
-            document.getElementById('loading').classList.add('active');
-            document.getElementById('validate-btn').disabled = true;
-            clearOutput();
+            overlay.classList.add('active');
+            statusEl.textContent = 'Translating...';
+            statusEl.className = 'translation-status';
 
             try {
-                // Use the XML validator library
-                const validator = new XMLSitemapValidator();
-                const result = validator.validate(xmlContent, parentPath);
-
-                // Display results
-                displayResults(result);
-
-            } catch (error) {
-                const outputDiv = document.getElementById('output');
-                outputDiv.textContent = `Error: ${error.message}`;
-                outputDiv.style.color = '#ff6b6b';
-            } finally {
-                document.getElementById('loading').classList.remove('active');
-                document.getElementById('validate-btn').disabled = false;
-            }
-        }
-
-        function displayResults(result) {
-            const outputDiv = document.getElementById('output');
-            let output = [];
-
-            output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-            output.push(`📋 XML Sitemap Validation Results`);
-            output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
-
-            if (result.isValid) {
-                output.push(`✅ XML Structure: VALID\n`);
-            } else {
-                output.push(`❌ XML Structure: INVALID\n`);
-            }
-
-            if (result.errors && result.errors.length > 0) {
-                output.push(`\n❌ ERRORS (${result.errors.length}):`);
-                result.errors.forEach((error, index) => {
-                    output.push(`\n${index + 1}. ${error.type}: ${error.message}`);
-                    if (error.url) {
-                        output.push(`   URL: ${error.url}`);
-                    }
-                    if (error.expected) {
-                        output.push(`   Expected: ${error.expected}`);
-                    }
-                    if (error.actual) {
-                        output.push(`   Actual: ${error.actual}`);
-                    }
-                });
-            }
-
-            if (result.warnings && result.warnings.length > 0) {
-                output.push(`\n\n⚠️  WARNINGS (${result.warnings.length}):`);
-                result.warnings.forEach((warning, index) => {
-                    output.push(`\n${index + 1}. ${warning.message}`);
-                    if (warning.url) {
-                        output.push(`   URL: ${warning.url}`);
-                    }
-                });
-            }
-
-            if (result.urlResults && result.urlResults.length > 0) {
-                output.push(`\n\n📊 URL VALIDATION RESULTS:`);
-                output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
+                // Check if Chrome Translator API is available
+                if ('Translator' in self) {
+                    await translateWithChromeAPI(targetLang, statusEl);
+                } else {
+                    // Use fallback translations
+                    await translateWithFallback(targetLang, statusEl);
+                }
                 
-                result.urlResults.forEach((urlResult, index) => {
-                    const status = urlResult.isValid ? '✅' : '❌';
-                    output.push(`\n${index + 1}. ${status} ${urlResult.url}`);
-                    
-                    // Show hreflang validation results
-                    if (urlResult.hreflangResults && urlResult.hreflangResults.length > 0) {
-                        output.push(`   Hreflang Links: ${urlResult.hreflangResults.length}`);
-                        urlResult.hreflangResults.forEach((hreflangResult, hIndex) => {
-                            const hStatus = hreflangResult.isValid ? '✓' : '✗';
-                            output.push(`     ${hStatus} hreflang="${hreflangResult.hreflang}" -> ${hreflangResult.href}`);
-                            if (!hreflangResult.isValid && hreflangResult.errors) {
-                                hreflangResult.errors.forEach(err => {
-                                    output.push(`       - ${err}`);
-                                });
-                            }
+                currentLanguage = targetLang;
+            } catch (error) {
+                console.error('Translation error:', error);
+                statusEl.textContent = 'Error';
+                statusEl.className = 'translation-status error';
+                
+                // Try fallback on error
+                try {
+                    await translateWithFallback(targetLang, statusEl);
+                    currentLanguage = targetLang;
+                } catch (fallbackError) {
+                    console.error('Fallback also failed:', fallbackError);
+                }
+            } finally {
+                overlay.classList.remove('active');
+            }
+        }
+
+        async function translateWithChromeAPI(targetLang, statusEl) {
+            console.log(`Creating translator for en -> ${targetLang}`);
+            
+            // Create translator with source and target language
+            const translator = await Translator.create({
+                sourceLanguage: 'en',
+                targetLanguage: targetLang,
+                monitor(m) {
+                    m.addEventListener('downloadprogress', (e) => {
+                        const percent = Math.round(e.loaded * 100);
+                        statusEl.textContent = `Downloading: ${percent}%`;
+                        console.log(`Language pack download: ${percent}%`);
+                    });
+                }
+            });
+
+            statusEl.textContent = 'Translating...';
+            
+            // Translate all elements with data-translate attribute
+            const elements = document.querySelectorAll('[data-translate]');
+            const translationPromises = [];
+
+            for (const el of elements) {
+                const key = el.getAttribute('data-translate');
+                const originalText = originalTexts.get(key);
+                
+                if (originalText) {
+                    const promise = translator.translate(originalText)
+                        .then(translatedText => {
+                            el.textContent = translatedText;
+                        })
+                        .catch(err => {
+                            console.warn(`Failed to translate "${key}":`, err);
                         });
-                    }
-                    
-                    if (!urlResult.isValid && urlResult.errors) {
-                        output.push(`   Errors:`);
-                        urlResult.errors.forEach(err => {
-                            output.push(`     - ${err}`);
-                        });
-                    }
-                    if (urlResult.warnings && urlResult.warnings.length > 0) {
-                        output.push(`   Warnings:`);
-                        urlResult.warnings.forEach(warn => {
-                            output.push(`     - ${warn}`);
-                        });
-                    }
-                });
+                    translationPromises.push(promise);
+                }
             }
 
-            output.push(`\n\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`);
-            output.push(`📊 SUMMARY:`);
-            output.push(`   Total URLs: ${result.totalUrls || 0}`);
-            output.push(`   Valid URLs: ${result.validUrls || 0}`);
-            output.push(`   Invalid URLs: ${result.invalidUrls || 0}`);
-            output.push(`   Warnings: ${result.warnings?.length || 0}`);
-            output.push(`━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`);
-
-            outputDiv.textContent = output.join('\n');
-            outputDiv.scrollTop = outputDiv.scrollHeight;
-
-            // Update summary
-            document.getElementById('valid-count').textContent = result.validUrls || 0;
-            document.getElementById('invalid-count').textContent = result.invalidUrls || 0;
-            document.getElementById('warning-count').textContent = result.warnings?.length || 0;
-            document.getElementById('total-count').textContent = result.totalUrls || 0;
-            document.getElementById('summary').classList.add('active');
+            await Promise.all(translationPromises);
+            
+            const langNames = {
+                'es': 'Español',
+                'fr': 'Français', 
+                'de': 'Deutsch',
+                'ja': '日本語',
+                'zh': '中文',
+                'pt': 'Português',
+                'it': 'Italiano',
+                'ko': '한국어',
+                'ru': 'Русский'
+            };
+            
+            statusEl.textContent = langNames[targetLang] || targetLang;
+            statusEl.className = 'translation-status success';
+            
+            console.log(`Translation to ${targetLang} complete`);
         }
+
+        // Fallback translations when Chrome API is not available
+        const fallbackTranslations = {
+            'es': {
+                'nav-home': 'Inicio',
+                'nav-destinations': 'Destinos',
+                'nav-features': 'Características',
+                'nav-testimonials': 'Testimonios',
+                'nav-contact': 'Contacto',
+                'slide1-title': 'Explora las Montañas Más Impresionantes del Mundo',
+                'slide1-desc': 'Descubre picos majestuosos, valles prístinos y aventuras inolvidables en los destinos de montaña más impresionantes de la Tierra.',
+                'slide2-title': 'Playas Paradisíacas Esperan Tu Llegada',
+                'slide2-desc': 'Aguas cristalinas, arenas blancas y felicidad tropical. Tu escapada perfecta a la playa está a solo un clic de distancia.',
+                'slide3-title': 'Experimenta una Rica Herencia Cultural',
+                'slide3-desc': 'Sumérgete en tradiciones antiguas, templos impresionantes y festivales vibrantes que dejarán recuerdos duraderos.',
+                'slide4-title': 'Lagos Serenos y Maravillas Naturales',
+                'slide4-desc': 'Encuentra tranquilidad en los entornos más pacíficos de la naturaleza. Escapa de lo ordinario y abraza lo extraordinario.',
+                'explore-btn': 'Comienza a Explorar',
+                'book-btn': 'Reservar Ahora',
+                'discover-btn': 'Descubre la Cultura',
+                'plan-btn': 'Planifica Tu Viaje',
+                'features-title': '¿Por Qué Elegir TravelWorld?',
+                'features-desc': 'Ofrecemos experiencias de viaje excepcionales con un servicio inigualable, precios competitivos y destinos de ensueño.',
+                'feature1-title': 'Destinos Globales',
+                'feature1-desc': 'Acceso a más de 500 destinos en todo el mundo. Desde paraísos tropicales hasta aventuras árticas, te tenemos cubierto con la selección más diversa de experiencias de viaje.',
+                'feature2-title': 'Garantía del Mejor Precio',
+                'feature2-desc': 'Garantizamos los mejores precios o te devolvemos tu dinero. Nuestra extensa red de socios nos permite ofrecer ofertas exclusivas que no encontrarás en ningún otro lugar.',
+                'feature3-title': 'Reserva Segura',
+                'feature3-desc': 'Tu seguridad es nuestra prioridad. Reserva con confianza sabiendo que tus transacciones e información personal están protegidas con medidas de seguridad líderes en la industria.',
+                'feature4-title': 'Soporte 24/7',
+                'feature4-desc': 'Nuestro equipo de soporte dedicado está disponible las 24 horas. Ya sea que necesites ayuda para planificar o asistencia durante tu viaje, siempre estamos aquí para ti.',
+                'feature5-title': 'Proceso de Reserva Fácil',
+                'feature5-desc': 'Reserva las vacaciones de tus sueños en solo unos clics. Nuestro proceso simplificado hace que la planificación sea sin esfuerzo, para que puedas concentrarte en la emoción de tu próxima aventura.',
+                'feature6-title': 'Recompensas Exclusivas',
+                'feature6-desc': 'Gana puntos en cada reserva y desbloquea beneficios exclusivos. Desde mejoras de habitación hasta experiencias gratuitas, la lealtad nunca ha sido más gratificante.',
+                'dest-title': 'Destinos Populares',
+                'dest-desc': 'Explora nuestros destinos más buscados, seleccionados por expertos en viajes y amados por aventureros de todo el mundo.',
+                'dest-paris': 'París, Francia',
+                'dest-paris-desc': 'La Ciudad de la Luz te espera con romance y cultura',
+                'dest-tokyo': 'Tokio, Japón',
+                'dest-tokyo-desc': 'Donde las tradiciones antiguas se encuentran con la innovación moderna',
+                'dest-bali': 'Bali, Indonesia',
+                'dest-bali-desc': 'Paraíso tropical con serenidad espiritual',
+                'dest-dubai': 'Dubái, EAU',
+                'dest-dubai-desc': 'Lujo y aventura en la metrópolis del desierto',
+                'dest-rome': 'Roma, Italia',
+                'dest-rome-desc': 'Camina a través de milenios de arte e historia',
+                'dest-nyc': 'Nueva York, EE.UU.',
+                'dest-nyc-desc': 'La ciudad que nunca duerme te llama',
+                'testimonials-title': 'Lo Que Dicen Nuestros Viajeros',
+                'testimonials-desc': 'Experiencias reales de viajeros reales que confiaron en nosotros para sus vacaciones de ensueño.',
+                'testimonial1': '"¡Experiencia absolutamente increíble! TravelWorld hizo nuestra luna de miel inolvidable. Cada detalle fue perfectamente planificado, y el servicio al cliente fue excepcional. ¡Definitivamente reservaremos de nuevo!"',
+                'testimonial2': '"Desde el momento en que aterrizamos hasta el día que nos fuimos, todo fue perfecto. Los guías locales fueron conocedores y amigables. Este fue verdaderamente el viaje de nuestra vida para nuestra familia."',
+                'testimonial3': '"¡La mejor agencia de viajes que he usado! El precio fue inmejorable, y fueron más allá para asegurarse de que tuviéramos una experiencia increíble. ¡Muy recomendado para todos!"',
+                'cta-title': '¿Listo para Comenzar Tu Aventura?',
+                'cta-desc': 'Únete a millones de viajeros felices que descubrieron su escapada perfecta con TravelWorld. Tu destino de ensueño te está esperando.',
+                'cta-btn': 'Comienza Hoy',
+                'footer-desc': 'Haciendo realidad los sueños de viaje desde 2010. Creemos que todos merecen experimentar las maravillas del mundo. Déjanos llevarte a tu próxima gran aventura.',
+                'footer-company': 'Empresa',
+                'footer-about': 'Sobre Nosotros',
+                'footer-careers': 'Carreras',
+                'footer-press': 'Prensa',
+                'footer-blog': 'Blog',
+                'footer-support': 'Soporte',
+                'footer-help': 'Centro de Ayuda',
+                'footer-safety': 'Seguridad',
+                'footer-cancel': 'Cancelación',
+                'footer-covid': 'COVID-19',
+                'footer-legal-title': 'Legal',
+                'footer-privacy': 'Política de Privacidad',
+                'footer-terms': 'Términos de Servicio',
+                'footer-cookies': 'Política de Cookies',
+                'footer-licenses': 'Licencias',
+                'footer-copyright': '© 2026 TravelWorld. Todos los derechos reservados.',
+                'footer-accessibility': 'Accesibilidad',
+                'footer-sitemap': 'Mapa del Sitio',
+                'translating': 'Traduciendo contenido...'
+            },
+            'fr': {
+                'nav-home': 'Accueil',
+                'nav-destinations': 'Destinations',
+                'nav-features': 'Fonctionnalités',
+                'nav-testimonials': 'Témoignages',
+                'nav-contact': 'Contact',
+                'slide1-title': 'Explorez les Montagnes les Plus Époustouflantes du Monde',
+                'slide1-desc': 'Découvrez des sommets majestueux, des vallées immaculées et des aventures inoubliables dans les destinations de montagne les plus impressionnantes de la Terre.',
+                'slide2-title': 'Les Plages Paradisiaques Vous Attendent',
+                'slide2-desc': 'Eaux cristallines, plages de sable blanc et bonheur tropical. Votre escapade parfaite à la plage n\'est qu\'à un clic.',
+                'slide3-title': 'Vivez un Riche Patrimoine Culturel',
+                'slide3-desc': 'Immergez-vous dans les traditions anciennes, les temples impressionnants et les festivals vibrants qui laisseront des souvenirs durables.',
+                'slide4-title': 'Lacs Sereins et Merveilles Naturelles',
+                'slide4-desc': 'Trouvez la tranquillité dans les décors les plus paisibles de la nature. Échappez à l\'ordinaire et embrassez l\'extraordinaire.',
+                'explore-btn': 'Commencer l\'Exploration',
+                'book-btn': 'Réserver Maintenant',
+                'discover-btn': 'Découvrir la Culture',
+                'plan-btn': 'Planifier Votre Voyage',
+                'features-title': 'Pourquoi Choisir TravelWorld?',
+                'features-desc': 'Nous offrons des expériences de voyage exceptionnelles avec un service inégalé, des prix compétitifs et des destinations de rêve.',
+                'feature1-title': 'Destinations Mondiales',
+                'feature1-desc': 'Accès à plus de 500 destinations dans le monde entier. Des paradis tropicaux aux aventures arctiques, nous avons la sélection d\'expériences de voyage la plus diversifiée.',
+                'cta-title': 'Prêt à Commencer Votre Aventure?',
+                'cta-desc': 'Rejoignez des millions de voyageurs heureux qui ont découvert leur escapade parfaite avec TravelWorld.',
+                'cta-btn': 'Commencer Aujourd\'hui',
+                'translating': 'Traduction du contenu...'
+            },
+            'de': {
+                'nav-home': 'Startseite',
+                'nav-destinations': 'Reiseziele',
+                'nav-features': 'Funktionen',
+                'nav-testimonials': 'Bewertungen',
+                'nav-contact': 'Kontakt',
+                'slide1-title': 'Entdecken Sie die Atemberaubendsten Berge der Welt',
+                'slide1-desc': 'Entdecken Sie majestätische Gipfel, unberührte Täler und unvergessliche Abenteuer an den beeindruckendsten Bergzielen der Erde.',
+                'explore-btn': 'Jetzt Entdecken',
+                'features-title': 'Warum TravelWorld Wählen?',
+                'cta-title': 'Bereit für Ihr Abenteuer?',
+                'cta-btn': 'Heute Starten',
+                'translating': 'Inhalt wird übersetzt...'
+            },
+            'ja': {
+                'nav-home': 'ホーム',
+                'nav-destinations': '目的地',
+                'nav-features': '特徴',
+                'nav-testimonials': 'お客様の声',
+                'nav-contact': 'お問い合わせ',
+                'slide1-title': '世界で最も息をのむような山々を探検',
+                'slide1-desc': '地球上で最も素晴らしい山岳地帯で、壮大な山頂、手つかずの渓谷、忘れられない冒険を発見してください。',
+                'explore-btn': '探検を始める',
+                'features-title': 'TravelWorldを選ぶ理由',
+                'cta-title': '冒険を始める準備はできましたか？',
+                'cta-btn': '今すぐ始める',
+                'translating': 'コンテンツを翻訳中...'
+            },
+            'zh': {
+                'nav-home': '首页',
+                'nav-destinations': '目的地',
+                'nav-features': '特色',
+                'nav-testimonials': '用户评价',
+                'nav-contact': '联系我们',
+                'slide1-title': '探索世界上最令人叹为观止的山脉',
+                'slide1-desc': '在地球上最壮观的山区目的地，发现雄伟的山峰、原始的山谷和难忘的冒险。',
+                'explore-btn': '开始探索',
+                'features-title': '为什么选择TravelWorld？',
+                'cta-title': '准备好开始你的冒险了吗？',
+                'cta-btn': '立即开始',
+                'translating': '正在翻译内容...'
+            }
+        };
+
+        async function translateWithFallback(targetLang, statusEl) {
+            console.log(`Using fallback translations for ${targetLang}`);
+            
+            const translations = fallbackTranslations[targetLang];
+            
+            if (!translations) {
+                statusEl.textContent = 'Language not available';
+                statusEl.className = 'translation-status error';
+                return;
+            }
+
+            // Simulate loading delay for UX
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[key]) {
+                    el.textContent = translations[key];
+                }
+            });
+
+            const langNames = {
+                'es': 'Español',
+                'fr': 'Français',
+                'de': 'Deutsch',
+                'ja': '日本語',
+                'zh': '中文',
+                'pt': 'Português',
+                'it': 'Italiano',
+                'ko': '한국어',
+                'ru': 'Русский'
+            };
+
+            statusEl.textContent = langNames[targetLang] || targetLang;
+            statusEl.className = 'translation-status success';
+        }
+
+        // Smooth scroll for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
     </script>
 </body>
 </html>
